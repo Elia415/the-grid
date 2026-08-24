@@ -1,0 +1,137 @@
+/*
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ * CinePulse Design Tokens
+ * Single source of truth per colori, spazi, radius
+ * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ */
+
+:root {
+  /* =================== */
+  /*  Colori Base        */
+  /* =================== */
+  --c-bg: 0 0% 5%;                     /* #08090d — fondo principale */
+  --c-bg-card: 220 70% 13%;           /* #161822 — card background */
+  --c-bg-card-hover: 220 45% 17%;     /* #1e2230 — hover state */
+  --c-bg-glass: 220 65% 11%;          /* #11141d — glass panel */
+  --c-bg-input: 0 0% 8%;              /* #14161f — input background */
+
+  /* =================== */
+  /*  Colori Accent       */
+  /* =================== */
+  --c-primary: 348 93% 41%;           /* #e50914 — primary (rosso cine) */
+  --c-primary-hover: 348 93% 46%;     /* hover primary */
+  --c-primary-glow: 348 93% 41% / 0.4;
+
+  --c-accent-cyan: 192 100% 50%;     /* #00f2fe */
+  --c-accent-cyan-glow: 192 100% 50% / 0.4;
+
+  --c-accent-blue: 205 96% 57%;      /* #4facfe */
+  --c-accent-purple: 278 75% 64%;    /* #9d4edd */
+  --c-accent-pink: 326 100% 50%;     /* #ff007f */
+  --c-accent-gold: 45 100% 50%;      /* #ffd700 */
+
+  /* =================== */
+  /*  Text Colors         */
+  /* =================== */
+  --c-text-primary: 0 0% 97%;        /* #f8fafc */
+  --c-text-muted: 220 40% 65%;       /* #94a3b8 */
+  --c-text-dim: 220 35% 47%;         /* #64748b */
+  --c-text-accent: 192 100% 50%;     /* #00f2fe */
+
+  /* =================== */
+  /*  Border / Effects    */
+  /* =================== */
+  --c-border: 0 0% 100% / 0.1;       /* rgba(255,255,255,0.1) */
+  --c-border-glass: 0 0% 100% / 0.12;
+  --c-border-strong: 0 0% 100% / 0.25;
+
+  /* =================== */
+  /*  Elevation / Shadow  */
+  /* =================== */
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.7);
+  --shadow-glow-cyan: 0 0 25px var(--c-accent-cyan-glow);
+  --shadow-glow-primary: 0 0 25px var(--c-primary-glow);
+  --shadow-glow-purple: 0 0 25px rgba(157, 78, 221, 0.3);
+
+  /* =================== */
+  /*  Border Radius       */
+  /* =================== */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* =================== */
+  /*  Spacing Scale       */
+  /* =================== */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+
+  /* =================== */
+  /*  Typography          */
+  /* =================== */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Fira Code', 'Courier New', monospace;
+
+  /* Heading sizes */
+  --text-2xs: 0.625rem;   /* 10px */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+  --text-5xl: 3rem;       /* 48px */
+
+  /* =================== */
+  /*  Transitions         */
+  /* =================== */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 150ms var(--ease-out);
+  --transition-base: 300ms var(--ease-out);
+  --transition-slow: 500ms var(--ease-out);
+
+  /* =================== */
+  /*  Media Types         */
+  /* =================== */
+  --media-movie: var(--c-primary);
+  --media-tv: var(--c-accent-cyan);
+}
+
+/* ==========================================================================
+   DARK MODE — System preference aware
+   ========================================================================== */
+@media (prefers-color-scheme: light) {
+  :root {
+    --c-bg: 0 0% 97%;
+    --c-bg-card: 0 0% 95%;
+    --c-bg-card-hover: 220 30% 88%;
+    --c-bg-glass: 0 0% 96%;
+    --c-border: 220 30% 85%;
+    --c-border-glass: 220 30% 80%;
+    --c-text-primary: 220 30% 10%;
+    --c-text-muted: 220 12% 48%;
+    --c-text-dim: 220 10% 35%;
+  }
+}
+
+/* ==========================================================================
+   Rating Source Colors — estratto da rating-badge CSS
+   ========================================================================== */
+:root {
+  --rating-tmdb: var(--c-accent-gold);
+  --rating-imdb: #f5c518;
+  --rating-rotten: #ff4d4d;
+  --rating-metacritic: #6cce23;
+}
