@@ -198,7 +198,7 @@ export async function loginUser(email: string, pass: string): Promise<UserProfil
 
   if (!account) {
     recordFailedAttempt(cleanEmail);
-    throw new Error('Credenziali non corrette. Verifica email e password o registrati.');
+    throw new Error('Nessun account trovato con questa email su questo dispositivo. Se ti sei registrato da un altro dispositivo, clicca su REGISTRATI per creare il profilo o verifica la configurazione cloud.');
   }
 
   const isMatch = await verifyPassword(pass, account.salt, account.hash);

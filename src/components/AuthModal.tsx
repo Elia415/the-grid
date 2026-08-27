@@ -237,7 +237,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         ) : (
           /* LOGIN / REGISTRATION FORMS */
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.4rem' }}>
-            {/* Segmented Mode Selector */}
+            {/* Mode selector: Accedi / Registrati */}
             <div style={{
               display: 'flex',
               border: '1px solid var(--border-subtle)',
@@ -288,6 +288,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               >
                 REGISTRATI
               </button>
+            </div>
+
+            {/* Cloud Sync Status Indicator */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              padding: '0.45rem 0.65rem',
+              background: isFirebaseConfigured ? 'rgba(0, 255, 136, 0.08)' : 'rgba(245, 158, 11, 0.08)',
+              border: `1px solid ${isFirebaseConfigured ? 'rgba(0, 255, 136, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.62rem',
+              color: isFirebaseConfigured ? '#00ff88' : '#f59e0b',
+              letterSpacing: '0.04em',
+            }}>
+              <ShieldCheck size={13} color={isFirebaseConfigured ? '#00ff88' : '#f59e0b'} style={{ flexShrink: 0 }} />
+              <span>
+                {isFirebaseConfigured
+                  ? 'SINCRONIZZAZIONE CLOUD ATTIVA (PC & SMARTPHONE)'
+                  : 'MODALITÀ LOCALE (CONFIGURA VARIABILI VERCEL PER SYNC MULTI-DISPOSITIVO)'}
+              </span>
             </div>
 
             {errorMsg && (
