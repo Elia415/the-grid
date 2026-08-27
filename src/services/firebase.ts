@@ -99,16 +99,18 @@ function mapFirebaseAuthError(error: any): string {
     case 'auth/invalid-email':
       return 'Indirizzo email non valido.';
     case 'auth/user-not-found':
-      return 'Nessun account trovato con questa email. Registrati per iniziare.';
+      return 'Nessun account cloud trovato con questa email. Clicca sulla scheda REGISTRATI per attivarlo sul cloud.';
     case 'auth/wrong-password':
     case 'auth/invalid-credential':
-      return 'Credenziali non corrette. Verifica email e password o registrati.';
+      return 'Credenziali non corrette. Se non hai ancora creato l\'account sul cloud, clicca sulla scheda REGISTRATI con la tua email e password.';
     case 'auth/weak-password':
       return 'La password deve contenere almeno 6 caratteri.';
     case 'auth/too-many-requests':
       return 'Troppi tentativi falliti. Riprova tra qualche istante per sicurezza.';
     case 'auth/network-request-failed':
       return 'Errore di rete. Verifica la connessione a Internet.';
+    case 'auth/operation-not-allowed':
+      return 'Accesso Email/Password non abilitato nella Firebase Console (Authentication > Sign-in method > Email/Password).';
     default:
       return error?.message || 'Errore durante l\'autenticazione. Riprova.';
   }
@@ -185,6 +187,43 @@ export async function loginUser(email: string, pass: string): Promise<UserProfil
       window.dispatchEvent(new CustomEvent('vault_updated'));
       return profile;
     } catch (fbErr: any) {
+      // Auto-Migration: If account was previously registered in Local Storage mode on this PC,
+      // seamlessly register it to Firebase Cloud right now!
+      try {
+        const accounts: Record<string, StoredAccount> = JSON.parse(
+          localStorage.getItem('thegrid_registered_accounts') || '{}'
+        );
+        const localAcc = accounts[cleanEmail];
+        if (localAcc) {
+          const isMatch = await verifyPassword(pass, localAcc.salt, localAcc.hash);
+          if (isMatch) {
+            const newCred = await createUserWithEmailAndPassword(auth, cleanEmail, pass);
+            const newFbUser = newCred.user;
+            await updateProfile(newFbUser, { displayName: localAcc.name });
+            if (db) {
+              await setDoc(doc(db, 'users', newFbUser.uid), {
+                uid: newFbUser.uid,
+                email: cleanEmail,
+                displayName: localAcc.name,
+                createdAt: serverTimestamp(),
+              }, { merge: true });
+            }
+            resetRateLimit(cleanEmail);
+            const profile: UserProfile = {
+              uid: newFbUser.uid,
+              email: cleanEmail,
+              displayName: sanitizeInput(localAcc.name, 60),
+            };
+            currentUserProfile = profile;
+            localStorage.setItem('thegrid_user', JSON.stringify(profile));
+            window.dispatchEvent(new CustomEvent('vault_updated'));
+            return profile;
+          }
+        }
+      } catch (migrateErr) {
+        console.warn('Auto-migration to Firebase failed:', migrateErr);
+      }
+
       recordFailedAttempt(cleanEmail);
       throw new Error(mapFirebaseAuthError(fbErr));
     }
