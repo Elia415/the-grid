@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, User, LogOut, ShieldCheck } from 'lucide-react';
-import { loginUser, registerUser, logoutUser } from '../services/firebase';
+import { loginUser, registerUser, logoutUser, isFirebaseConfigured } from '../services/firebase';
 import { isValidEmail, validatePasswordStrength, sanitizeInput } from '../services/security';
 import { UserProfile } from '../types';
 
@@ -203,6 +203,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {user?.email}
                 </div>
               </div>
+            </div>
+
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              padding: '0.45rem 0.75rem',
+              background: isFirebaseConfigured ? 'rgba(0, 255, 136, 0.08)' : 'rgba(255, 255, 255, 0.04)',
+              border: `1px solid ${isFirebaseConfigured ? 'rgba(0, 255, 136, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.62rem',
+              color: isFirebaseConfigured ? '#00ff88' : 'rgba(255, 255, 255, 0.6)',
+              letterSpacing: '0.04em',
+            }}>
+              <ShieldCheck size={13} color={isFirebaseConfigured ? '#00ff88' : '#ffffff'} />
+              <span>
+                {isFirebaseConfigured
+                  ? 'SINCRONIZZAZIONE CLOUD ATTIVA (PC & SMARTPHONE)'
+                  : 'MODALITÀ LOCALE ATTIVA (CONFIGURA FIREBASE PER CLOUD SYNC)'}
+              </span>
             </div>
 
             <button
