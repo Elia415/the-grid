@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MediaItem, UserReview } from '../types';
-import { getAllReviews } from '../services/firebase';
+import { getAllReviews, deleteUserReview, getCurrentUser } from '../services/firebase';
 import { getMediaDetail } from '../services/tmdb';
-import { Star, MessageSquare, Search, Film, Tv, Calendar, User, ArrowRight } from 'lucide-react';
+import { Star, MessageSquare, Search, Film, Tv, Calendar, User, ArrowRight, Trash2 } from 'lucide-react';
 import { TheGridLogoLoader } from './TheGridLogo';
 
 interface ArchiveViewProps {
@@ -19,6 +19,19 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
   const [filterType, setFilterType] = useState<'all' | 'movie' | 'tv'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'recent' | 'rating-desc' | 'rating-asc'>('recent');
+
+  const currentUser = getCurrentUser();
+
+  const handleDeleteReview = async (e: React.MouseEvent, review: UserReview) => {
+    e.stopPropagation();
+    if (!currentUser || review.userId !== currentUser.uid) return;
+    try {
+      await deleteUserReview(review.id, review.mediaId, review.mediaType);
+      setReviews((prev) => prev.filter((r) => r.id !== review.id));
+    } catch (err) {
+      console.error('Error deleting review in archive:', err);
+    }
+  };
 
   const loadReviews = async () => {
     try {
@@ -460,8 +473,15 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
                     </div>
                   )}
 
-                  {/* Link to open media detail modal */}
-                  <div style={{ alignSelf: 'flex-start', marginTop: '0.4rem' }}>
+                  {/* Link to open media detail modal & Delete button */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginTop: '0.4rem',
+                    flexWrap: 'wrap',
+                    gap: '0.6rem',
+                  }}>
                     <button
                       type="button"
                       onClick={() => handleCardClick(review)}
@@ -486,6 +506,40 @@ export const ArchiveView: React.FC<ArchiveViewProps> = ({
                       <span>VEDI SCHEDA TITOLO</span>
                       <ArrowRight size={13} />
                     </button>
+
+                    {currentUser && review.userId === currentUser.uid && (
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteReview(e, review)}
+                        style={{
+                          background: 'rgba(255, 77, 77, 0.08)',
+                          border: '1px solid rgba(255, 77, 77, 0.3)',
+                          color: '#ff6b6b',
+                          fontFamily: 'var(--font-mono)',
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          letterSpacing: '0.05em',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          cursor: 'pointer',
+                          padding: '0.3rem 0.6rem',
+                          transition: 'all 0.15s ease',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(255, 77, 77, 0.2)';
+                          e.currentTarget.style.color = '#ff4d4d';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(255, 77, 77, 0.08)';
+                          e.currentTarget.style.color = '#ff6b6b';
+                        }}
+                        title="Elimina la tua recensione"
+                      >
+                        <Trash2 size={12} />
+                        <span>ELIMINA LA TUA RECENSIONE</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

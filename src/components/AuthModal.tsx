@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, LogOut, ShieldCheck } from 'lucide-react';
-import { loginUser, registerUser, logoutUser, isFirebaseConfigured } from '../services/firebase';
+import { X, User, LogOut } from 'lucide-react';
+import { loginUser, registerUser, logoutUser } from '../services/firebase';
 import { isValidEmail, validatePasswordStrength, sanitizeInput } from '../services/security';
 import { UserProfile } from '../types';
 
@@ -68,7 +68,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  // Handle Registration with Double Check Password
+  // Handle Registration
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
@@ -91,7 +91,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       if (password !== confirmPassword) {
-        throw new Error('Le password non coincidono. Verifica e reinserisci la conferma password.');
+        throw new Error('Le password non coincidono. Reinserisci la conferma password.');
       }
 
       const newUser = await registerUser(cleanEmail, password, cleanName);
@@ -145,7 +145,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               textTransform: 'uppercase',
               margin: 0,
             }}>
-              {isLoggedIn ? 'PROFILO CURATORE' : activeMode === 'login' ? 'ACCESSO' : 'REGISTRAZIONE'}
+              {isLoggedIn ? 'PROFILO' : activeMode === 'login' ? 'ACCESSO' : 'REGISTRAZIONE'}
             </h2>
           </div>
 
@@ -193,7 +193,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   fontWeight: 800,
                   color: '#ffffff',
                 }}>
-                  {user?.displayName || 'Curatore Ufficiale'}
+                  {user?.displayName || 'Curatore'}
                 </div>
                 <div style={{
                   fontFamily: 'var(--font-mono)',
@@ -203,26 +203,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {user?.email}
                 </div>
               </div>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              padding: '0.45rem 0.75rem',
-              background: isFirebaseConfigured ? 'rgba(0, 255, 136, 0.08)' : 'rgba(255, 255, 255, 0.04)',
-              border: `1px solid ${isFirebaseConfigured ? 'rgba(0, 255, 136, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.62rem',
-              color: isFirebaseConfigured ? '#00ff88' : 'rgba(255, 255, 255, 0.6)',
-              letterSpacing: '0.04em',
-            }}>
-              <ShieldCheck size={13} color={isFirebaseConfigured ? '#00ff88' : '#ffffff'} />
-              <span>
-                {isFirebaseConfigured
-                  ? 'SINCRONIZZAZIONE CLOUD ATTIVA (PC & SMARTPHONE)'
-                  : 'MODALITÀ LOCALE ATTIVA (CONFIGURA FIREBASE PER CLOUD SYNC)'}
-              </span>
             </div>
 
             <button
@@ -288,27 +268,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               >
                 REGISTRATI
               </button>
-            </div>
-
-            {/* Cloud Sync Status Indicator */}
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              padding: '0.45rem 0.65rem',
-              background: isFirebaseConfigured ? 'rgba(0, 255, 136, 0.08)' : 'rgba(245, 158, 11, 0.08)',
-              border: `1px solid ${isFirebaseConfigured ? 'rgba(0, 255, 136, 0.25)' : 'rgba(245, 158, 11, 0.25)'}`,
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.62rem',
-              color: isFirebaseConfigured ? '#00ff88' : '#f59e0b',
-              letterSpacing: '0.04em',
-            }}>
-              <ShieldCheck size={13} color={isFirebaseConfigured ? '#00ff88' : '#f59e0b'} style={{ flexShrink: 0 }} />
-              <span>
-                {isFirebaseConfigured
-                  ? 'SINCRONIZZAZIONE CLOUD ATTIVA (PC & SMARTPHONE)'
-                  : 'MODALITÀ LOCALE (CONFIGURA VARIABILI VERCEL PER SYNC MULTI-DISPOSITIVO)'}
-              </span>
             </div>
 
             {errorMsg && (
@@ -408,7 +367,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </form>
             )}
 
-            {/* TAB 2: REGISTRATION WITH DOUBLE CHECK PASSWORD */}
+            {/* TAB 2: REGISTRATION */}
             {activeMode === 'register' && (
               <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.1rem' }}>
                 <div>
@@ -482,7 +441,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     marginBottom: '0.35rem',
                     letterSpacing: '0.04em',
                   }}>
-                    PASSWORD (MIN. 6 CARATTERI)
+                    PASSWORD
                   </label>
                   <input
                     type="password"
@@ -513,7 +472,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     marginBottom: '0.35rem',
                     letterSpacing: '0.04em',
                   }}>
-                    CONFERMA PASSWORD (DOUBLE CHECK)
+                    CONFERMA PASSWORD
                   </label>
                   <input
                     type="password"
@@ -535,26 +494,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   />
                 </div>
 
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.45rem',
-                  padding: '0.5rem 0.75rem',
-                  background: 'rgba(255, 255, 255, 0.03)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  marginTop: '0.2rem',
-                }}>
-                  <ShieldCheck size={14} color="#00ff88" style={{ flexShrink: 0 }} />
-                  <span style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '0.62rem',
-                    color: 'rgba(255,255,255,0.6)',
-                    lineHeight: 1.3,
-                  }}>
-                    Protezione crittografica avanzata con hashing PBKDF2 / SHA-256 e zero password in chiaro.
-                  </span>
-                </div>
-
                 <button
                   type="submit"
                   disabled={loading}
@@ -568,7 +507,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     opacity: loading ? 0.6 : 1,
                   }}
                 >
-                  <span>{loading ? 'REGISTRAZIONE IN CORSO...' : 'CREA ACCOUNT PROTETTO'}</span>
+                  <span>{loading ? 'CREAZIONE IN CORSO...' : 'CREA ACCOUNT'}</span>
                 </button>
               </form>
             )}

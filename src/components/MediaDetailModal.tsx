@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, Play, Bookmark, Check, Lock, User as UserIcon } from 'lucide-react';
+import { X, Play, Bookmark, Check, Lock, User as UserIcon, Trash2 } from 'lucide-react';
 import { MediaItem, MediaDetail, AggregatedRating, UserReview, ReviewRating } from '../types';
 import { getMediaDetail } from '../services/tmdb';
 import { fetchOMDbRatings, getCachedMediaRatings, getCachedImdbScore } from '../services/omdb';
 import { fetchRTAudience } from '../services/rt';
-import { toggleWatchlist, getReviewsForMedia, saveUserReview, getCurrentUser } from '../services/firebase';
+import { toggleWatchlist, getReviewsForMedia, saveUserReview, deleteUserReview, getCurrentUser } from '../services/firebase';
 import { ReviewRatingInput } from './ReviewRatingInput';
 
 interface MediaDetailModalProps {
@@ -38,6 +38,7 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [isReviewSaved, setIsReviewSaved] = useState(false);
   const [detailedRating, setDetailedRating] = useState<ReviewRating | null>(null);
+  const currentUser = getCurrentUser();
 
   // Lock background scroll while modal is open
   useEffect(() => {
@@ -187,6 +188,30 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
       console.error('Error saving review:', err);
     } finally {
       setIsSubmittingReview(false);
+    }
+  };
+
+  const [isDeletingReview, setIsDeletingReview] = useState(false);
+
+  const handleDeleteReview = async () => {
+    if (!media) return;
+    const currentUser = getCurrentUser();
+    if (!currentUser) return;
+    const reviewDocId = `${currentUser.uid}_${media.media_type}_${media.id}`;
+
+    setIsDeletingReview(true);
+    try {
+      await deleteUserReview(reviewDocId, media.id, media.media_type);
+      setReviews((prev) => prev.filter((r) => r.id !== reviewDocId && r.userId !== currentUser.uid));
+      setUserHasReviewed(false);
+      setIsLocked(false);
+      setNewComment('');
+      setDetailedRating(null);
+      setIsReviewSaved(false);
+    } catch (err) {
+      console.error('Error deleting review:', err);
+    } finally {
+      setIsDeletingReview(false);
     }
   };
 
@@ -941,24 +966,48 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                         <span>RECENSIONE SALVATA</span>
                       </button>
                     ) : userHasReviewed && isLocked ? (
-                      <button
-                        type="button"
-                        onClick={handleUnlockForEditing}
-                        className="btn-grid"
-                        style={{
-                          alignSelf: 'flex-start',
-                          padding: '0.8rem 1.8rem',
-                          letterSpacing: '0.06em',
-                          fontWeight: 700,
-                          fontSize: '0.75rem',
-                          background: 'rgba(255, 255, 255, 0.08)',
-                          borderColor: 'rgba(255, 255, 255, 0.3)',
-                          color: '#ffffff',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <span>MODIFICA RECENSIONE</span>
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+                        <button
+                          type="button"
+                          onClick={handleUnlockForEditing}
+                          className="btn-grid"
+                          style={{
+                            padding: '0.8rem 1.6rem',
+                            letterSpacing: '0.06em',
+                            fontWeight: 700,
+                            fontSize: '0.75rem',
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                            color: '#ffffff',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <span>MODIFICA RECENSIONE</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleDeleteReview}
+                          disabled={isDeletingReview}
+                          className="btn-grid"
+                          style={{
+                            padding: '0.8rem 1.4rem',
+                            letterSpacing: '0.06em',
+                            fontWeight: 700,
+                            fontSize: '0.75rem',
+                            background: 'rgba(255, 77, 77, 0.1)',
+                            borderColor: 'rgba(255, 77, 77, 0.4)',
+                            color: '#ff6b6b',
+                            cursor: isDeletingReview ? 'default' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.4rem',
+                            opacity: isDeletingReview ? 0.6 : 1,
+                          }}
+                        >
+                          <Trash2 size={13} />
+                          <span>{isDeletingReview ? 'ELIMINAZIONE...' : 'ELIMINA RECENSIONE'}</span>
+                        </button>
+                      </div>
                     ) : (
                       <button
                         type="submit"
@@ -1012,7 +1061,7 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                       alignItems: 'center',
                       marginBottom: '0.8rem',
                     }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                         <span style={{
                           fontFamily: 'var(--font-mono)',
                           fontSize: '0.78rem',
@@ -1028,6 +1077,32 @@ export const MediaDetailModal: React.FC<MediaDetailModalProps> = ({
                         }}>
                           {new Date(rev.createdAt).toLocaleDateString('it-IT')}
                         </span>
+                        {currentUser && rev.userId === currentUser.uid && (
+                          <button
+                            type="button"
+                            onClick={handleDeleteReview}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'rgba(255, 77, 77, 0.65)',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              fontFamily: 'var(--font-mono)',
+                              fontSize: '0.62rem',
+                              padding: '0.1rem 0.35rem',
+                              transition: 'color 0.15s ease',
+                              marginLeft: '0.3rem',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.color = '#ff4d4d')}
+                            onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255, 77, 77, 0.65)')}
+                            title="Elimina la tua recensione"
+                          >
+                            <Trash2 size={11} />
+                            <span>ELIMINA</span>
+                          </button>
+                        )}
                       </div>
 
                       <div style={{

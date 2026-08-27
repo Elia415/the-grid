@@ -564,3 +564,37 @@ export async function saveUserReview(
   window.dispatchEvent(new CustomEvent('vault_updated'));
   return finalReview;
 }
+
+export async function deleteUserReview(
+  reviewId: string,
+  mediaId?: number,
+  mediaType?: MediaType
+): Promise<void> {
+  const user = getCurrentUser();
+  if (!user || !user.uid || user.uid.startsWith('guest_')) {
+    throw new Error('Devi effettuare l\'accesso per poter eliminare una recensione.');
+  }
+
+  // 1. Delete from Cloud Firestore if configured
+  if (isFirebaseConfigured && db) {
+    try {
+      await deleteDoc(doc(db, 'reviews', reviewId));
+    } catch (err) {
+      console.warn('Error deleting review from Firestore:', err);
+    }
+  }
+
+  // 2. Remove from local storage cache
+  const allReviews = await getAllReviews();
+  const updatedReviews = allReviews.filter((r) => {
+    if (r.id === reviewId) return false;
+    if (mediaId && mediaType && r.userId === user.uid && Number(r.mediaId) === Number(mediaId) && r.mediaType === mediaType) {
+      return false;
+    }
+    return true;
+  });
+
+  localStorage.setItem('cinepulse_all_reviews', JSON.stringify(updatedReviews));
+  window.dispatchEvent(new CustomEvent('vault_updated'));
+}
+
