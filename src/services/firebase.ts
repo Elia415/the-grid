@@ -30,14 +30,14 @@ import {
   generateSecureId,
 } from './security';
 
-// Firebase Cloud configuration from environment variables (with project fallback)
+// Firebase Cloud configuration from environment variables
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyAQFhXap95SUVMqlYywAgGdjoIg7k31tgk',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'the-gird.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'the-gird',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'the-gird.firebasestorage.app',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '371778787575',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:371778787575:web:21b9ff30130909203d1bf2',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
 };
 
 // Check if valid Firebase configuration is present
