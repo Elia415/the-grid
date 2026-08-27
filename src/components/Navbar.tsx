@@ -240,14 +240,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onOpenAuth}
             className="btn-grid"
             style={{
-              padding: '0.45rem 0.75rem',
-              borderColor: user && !user.uid.startsWith('guest_') ? 'rgba(255, 255, 255, 0.4)' : 'var(--border-subtle)',
+              padding: '0.45rem 0.65rem',
+              borderColor: user && !user.uid.startsWith('guest_') ? 'rgba(0, 255, 136, 0.4)' : 'rgba(255, 255, 255, 0.25)',
+              background: user && !user.uid.startsWith('guest_') ? 'rgba(0, 255, 136, 0.08)' : 'rgba(255, 255, 255, 0.04)',
             }}
-            title={user && !user.uid.startsWith('guest_') ? (user.displayName || 'Profilo') : 'Accedi'}
-            aria-label="Profilo utente"
+            title={user && !user.uid.startsWith('guest_') ? (user.displayName || 'Profilo') : 'Accedi o Registrati'}
+            aria-label={user && !user.uid.startsWith('guest_') ? 'Profilo utente' : 'Accedi o Registrati'}
           >
-            <User size={13} />
-            <span className="hide-mobile" style={{ fontSize: '0.72rem' }}>
+            <User size={13} color={user && !user.uid.startsWith('guest_') ? '#00ff88' : '#ffffff'} />
+            <span className="hide-mobile" style={{ fontSize: '0.72rem', color: user && !user.uid.startsWith('guest_') ? '#00ff88' : 'inherit' }}>
               {user && !user.uid.startsWith('guest_') ? (user.displayName || 'CURATORE').toUpperCase() : 'ACCEDI'}
             </span>
           </button>
@@ -261,9 +262,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           width: '100%',
           backgroundColor: '#070709',
           borderTop: '1px solid var(--border-subtle)',
-          display: 'flex',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           alignItems: 'stretch',
-          justifyContent: 'space-around',
         }}
       >
         {navItems.map((item) => {
@@ -273,25 +274,57 @@ export const Navbar: React.FC<NavbarProps> = ({
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               style={{
-                flex: 1,
-                padding: '0.65rem 0.4rem',
+                padding: '0.65rem 0.2rem',
                 background: isActive ? 'rgba(255, 255, 255, 0.08)' : 'transparent',
                 color: isActive ? '#ffffff' : 'rgba(255, 255, 255, 0.5)',
                 fontFamily: 'var(--font-mono)',
-                fontSize: '0.74rem',
+                fontSize: '0.7rem',
                 fontWeight: isActive ? 800 : 600,
-                letterSpacing: '0.08em',
+                letterSpacing: '0.06em',
                 border: 'none',
                 borderBottom: isActive ? '2px solid #ffffff' : '2px solid transparent',
                 cursor: 'pointer',
                 textAlign: 'center',
                 transition: 'all 0.15s ease',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
               }}
             >
               {item.label}
             </button>
           );
         })}
+
+        {/* 4th Explicit Tab on Mobile: ACCEDI / PROFILO */}
+        <button
+          onClick={onOpenAuth}
+          style={{
+            padding: '0.65rem 0.2rem',
+            background: user && !user.uid.startsWith('guest_') ? 'rgba(0, 255, 136, 0.08)' : 'transparent',
+            color: user && !user.uid.startsWith('guest_') ? '#00ff88' : 'rgba(255, 255, 255, 0.75)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.7rem',
+            fontWeight: 800,
+            letterSpacing: '0.06em',
+            border: 'none',
+            borderBottom: '2px solid transparent',
+            cursor: 'pointer',
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '0.2rem',
+            transition: 'all 0.15s ease',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+          title={user && !user.uid.startsWith('guest_') ? 'Profilo e Sessione' : 'Accedi o Registrati'}
+        >
+          <User size={11} color={user && !user.uid.startsWith('guest_') ? '#00ff88' : '#ffffff'} />
+          <span>{user && !user.uid.startsWith('guest_') ? (user.displayName?.split(' ')[0] || 'PROFILO').toUpperCase() : 'ACCEDI'}</span>
+        </button>
       </div>
 
       {/* Integrated Filter Bar in Header */}
